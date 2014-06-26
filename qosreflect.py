@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#Copyright (c) 2014, Paessler AG <support@paessler.com>
+# Copyright (c) 2014, Paessler AG <support@paessler.com>
 #All rights reserved.
 
 #Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,7 @@ with open('./qosreflect.conf') as config:
             conf[line.split(":")[0]] = line.split(":")[1].rstrip()
 print 'Read config done'
 if conf['host'] == 'All':
-    HOST = ''   # Empty host means bind to all available interfaces
+    HOST = ''  # Empty host means bind to all available interfaces
 else:
     HOST = conf['host']
 PORT = int(conf['port'])
