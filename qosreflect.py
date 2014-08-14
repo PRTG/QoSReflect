@@ -15,41 +15,70 @@
 import socket
 import sys
 import time
+import argparse
+
+# Parsing some optional arguments
+argparser = argparse.ArgumentParser()
+argparser.add_argument('-p', '--port', help='Provide port defined in PRTG')
+argparser.add_argument('-c', '--conf', help='Path of config file, if not provided default qosreflect.conf will be used')
+argparser.add_argument('-o', '--host', help='Provide the IP address if the interface the script should bind to. Use ''All'' to bind to all available interfaces(recommended)')
+argparser.add_argument('-r', '--replyip', help='Provide the IP address of the PRTG Probe which sends the packets. '
+                                         'The reflector then will only reply to this IP')
+argparser.add_argument('-d', '--debug', help='Set to turn on detailed output', action="store_true")
+args = argparser.parse_args()
+
+
+def read_conf(path):
+    configuration = {}
+    with open(path) as config:
+        for line in config:
+            if not line.startswith('#'):
+                configuration[line.split(":")[0]] = line.split(":")[1].rstrip()
+    return configuration
 
 conf = {}
 restrict_answer = True
 
-#Read config file
-with open('./qosreflect.conf') as config:
-    for line in config:
-        if not line.startswith('#'):
-            conf[line.split(":")[0]] = line.split(":")[1].rstrip()
-print 'Read config done'
+#Read config file or from arguments
+if not args.conf:
+    conf['replyip'] = args.replyip
+    conf['host'] = args.host
+    conf['port'] = args.port
+else:
+    conf = read_conf(args.conf)
+if args.debug:
+    print conf
+    print 'Read config done'
+
 if conf['host'] == 'All':
     HOST = ''  # Empty host means bind to all available interfaces
 else:
     HOST = conf['host']
 PORT = int(conf['port'])
 
-if conf['replyip'] == 'None':
+if conf['replyip'] == 'None' or not conf['replyip']:
     restrict_answer = False
 
 # receive data from client (data, addr)
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print 'Socket created'
+    if args.debug:
+        print 'Socket created'
 except socket.error, msg:
-    print 'Failed to create socket. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    if args.debug:
+        print 'Failed to create socket. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
     sys.exit()
 
 # Bind socket to local host and port
 try:
     s.bind((HOST, PORT))
 except socket.error, msg:
-    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    if args.debug:
+        print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
     sys.exit()
 
-print 'Socket bind complete'
+if args.debug:
+    print 'Socket bind complete'
 while 1:
     d = s.recvfrom(4096)
     if d and not restrict_answer:
@@ -66,6 +95,7 @@ while 1:
         else:
             pass
     else:
-        print 'Waiting for data'
+        if args.debug:
+            print 'Waiting for data'
         time.sleep(0.1)
 s.close()
