@@ -23,7 +23,7 @@ replyip:None
 The script can now be called with parameters to allow several instances running. Just type qosreflect.py --help to see all parameters.
 Example call below:
 
-qosreflect.py --port 50000 -host All
+qosreflect.py --port 50000 --host All
 
 Additional parameters are optional. You can still use a config file, then please use paramter --conf to provide the path.
 
