@@ -32,5 +32,6 @@ the script bind to a special interface.
 Set "port" to the same one set up in PRTG.  
 If an IP is specified in "replyip" the script will only process UDP packets from this IP.  
 
-
-
+Debugging
+---------
+To debug whats going on call the script with the additional parameter -d or --debug
