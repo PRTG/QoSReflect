@@ -15,7 +15,11 @@
 import socket
 import sys
 import time
-import argparse
+if sys.version_info < (2, 7):
+    print "Python Version too old. Exiting!"
+    sys.exit()
+else:
+    import argparse
 
 # Parsing some optional arguments
 argparser = argparse.ArgumentParser()
