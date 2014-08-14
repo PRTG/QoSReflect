@@ -3,7 +3,7 @@ QoSReflect
 
 Current Status: BETA  
 A simple Python Script that just bounces all incoming UDP Packets which can be used as endpoint for PRTG's QoS Roundtrip Sensor.  
-At the moment this works only from a machine a MiniProbe is announced from.  
+At the moment this works only from a machine a MiniProbe is announced from. From the upcoming Preview version of PRTG it will be possible to define custom targets for QoS RTT sensors. 
 
 
 Prerequisites
