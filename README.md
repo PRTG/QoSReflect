@@ -14,7 +14,7 @@ Python 2.7+
 Installation
 ------------
 - make the file "qosreflect.py" executable (e.g. "chmod 755 qosreflect.py")
-- create a file called "qosreflect.conf" with the following contents [OPTIONAL]:
+- [OPTIONAL]create a file called "qosreflect.conf" with the following contents:
 
 host:All  
 port:50000  
@@ -25,7 +25,7 @@ Example call below:
 
 qosreflect.py --port 50000 --host All
 
-Additional parameters are optional. You can still use a config file, then please use paramter --conf to provide the path.
+Additional parameters are optional. You can still use a config file, then please use parameter --conf to provide the path.
 
 When "host" is set to "All" the script will try to bind to every available interface. Change to IP of an interface to make 
 the script bind to a special interface.  
