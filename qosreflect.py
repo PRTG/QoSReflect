@@ -27,7 +27,9 @@ argparser.add_argument('-p', '--port', help='Provide port defined in PRTG')
 argparser.add_argument('-c', '--conf', help='Path of config file, if not provided default qosreflect.conf will be used')
 argparser.add_argument('-o', '--host', help='Provide the IP address if the interface the script should bind to. Use ''All'' to bind to all available interfaces(recommended)')
 argparser.add_argument('-r', '--replyip', help='Provide the IP address of the PRTG Probe which sends the packets. '
-                                         'The reflector then will only reply to this IP')
+                                               'The reflector then will only reply to this IP')
+argparser.add_argument('-n', '--nat', help='Option enables the NAT mode so packets are reflected exactly '
+                                           'to the port they are received from', action='store_true')
 argparser.add_argument('-d', '--debug', help='Set to turn on detailed output', action="store_true")
 args = argparser.parse_args()
 
@@ -88,12 +90,16 @@ while 1:
     if d and not restrict_answer:
         data = d[0]
         addr = (d[1][0], PORT)
+        if args.nat:
+            addr = (d[1][0], d[1][1])
         reply = data
         s.sendto(reply, addr)
     elif d and restrict_answer:
         if d[1][0] == conf['replyip']:
             data = d[0]
             addr = (d[1][0], PORT)
+            if args.nat:
+                addr = (d[1][0], d[1][1])
             reply = data
             s.sendto(reply, addr)
         else:
