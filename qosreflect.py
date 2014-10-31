@@ -28,6 +28,7 @@ argparser.add_argument('-c', '--conf', help='Path of config file, if not provide
 argparser.add_argument('-o', '--host', help='Provide the IP address if the interface the script should bind to. Use ''All'' to bind to all available interfaces(recommended)')
 argparser.add_argument('-r', '--replyip', help='Provide the IP address of the PRTG Probe which sends the packets. '
                                                'The reflector then will only reply to this IP')
+argparser.add_argument('-t', '--replyport', help='Provide the port the packets should be bounced to')
 argparser.add_argument('-n', '--nat', help='Option enables the NAT mode so packets are reflected exactly '
                                            'to the port they are received from', action='store_true')
 argparser.add_argument('-d', '--debug', help='Set to turn on detailed output', action="store_true")
@@ -60,7 +61,10 @@ if conf['host'] == 'All':
     HOST = ''  # Empty host means bind to all available interfaces
 else:
     HOST = conf['host']
-PORT = int(conf['port'])
+if args.replyport:
+    PORT = args.replyport
+else:
+    PORT = int(conf['port'])
 
 if conf['replyip'] == 'None' or not conf['replyip']:
     restrict_answer = False
