@@ -70,7 +70,7 @@ if conf['host'] == 'All':
 else:
     HOST = conf['host']
 if args.replyport:
-    PORT = args.replyport
+    PORT = int(args.replyport)
 else:
     PORT = int(conf['port'])
 
