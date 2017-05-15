@@ -23,7 +23,7 @@ import socket
 import sys
 import time
 if sys.version_info < (2, 7):
-    print "Python Version too old. Exiting!"
+    print("Python Version too old. Exiting!")
     sys.exit()
 else:
     import argparse
@@ -62,8 +62,8 @@ if not args.conf:
 else:
     conf = read_conf(args.conf)
 if args.debug:
-    print conf
-    print 'Read config done'
+    print(conf)
+    print('Read config done')
 
 if conf['host'] == 'All':
     HOST = ''  # Empty host means bind to all available interfaces
@@ -81,22 +81,22 @@ if conf['replyip'] == 'None' or not conf['replyip']:
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if args.debug:
-        print 'Socket created'
-except socket.error, msg:
+        print('Socket created')
+except socket.error as err:
     if args.debug:
-        print 'Failed to create socket. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+        print('Failed to create socket. Error Code : ' + err.errno + ' Message ' + err.strerror)
     sys.exit()
 
 # Bind socket to local host and port
 try:
     s.bind((HOST, PORT))
-except socket.error, msg:
+except socket.error as err:
     if args.debug:
-        print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+        print('Bind failed. Error Code : ' + err.errno + ' Message ' + err.strerror)
     sys.exit()
 
 if args.debug:
-    print 'Socket bind complete'
+    print('Socket bind complete')
 while 1:
     d = s.recvfrom(4096)
     if d and not restrict_answer:
@@ -118,6 +118,6 @@ while 1:
             pass
     else:
         if args.debug:
-            print 'Waiting for data'
+            print('Waiting for data')
         time.sleep(0.1)
 s.close()
