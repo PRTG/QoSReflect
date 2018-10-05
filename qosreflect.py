@@ -19,6 +19,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import datetime
 import socket
 import sys
 import time
@@ -51,6 +52,7 @@ def read_conf(path):
                 configuration[line.split(":")[0]] = line.split(":")[1].rstrip()
     return configuration
 
+
 conf = {}
 restrict_answer = True
 
@@ -61,9 +63,16 @@ if not args.conf:
     conf['port'] = args.port
 else:
     conf = read_conf(args.conf)
+
 if args.debug:
     print(conf)
-    print('Read config done')
+    def log(message):
+        print('{} - {}'.format(datetime.datetime.now(), message))
+else:
+    def log(message):
+        pass
+
+log('Read config done')
 
 if conf['host'] == 'All':
     HOST = ''  # Empty host means bind to all available interfaces
@@ -80,44 +89,42 @@ if conf['replyip'] == 'None' or not conf['replyip']:
 # receive data from client (data, addr)
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    if args.debug:
-        print('Socket created')
+    log('Socket created')
 except socket.error as err:
-    if args.debug:
-        print('Failed to create socket. Error Code : ' + err.errno + ' Message ' + err.strerror)
+    log('Failed to create socket. Error Code : ' + err.errno + ' Message ' + err.strerror)
     sys.exit()
 
 # Bind socket to local host and port
 try:
     s.bind((HOST, PORT))
+    s.settimeout(30)
 except socket.error as err:
-    if args.debug:
-        print('Bind failed. Error Code : ' + err.errno + ' Message ' + err.strerror)
+    log('Bind failed. Error Code : ' + err.errno + ' Message ' + err.strerror)
     sys.exit()
 
-if args.debug:
-    print('Socket bind complete')
-while 1:
-    d = s.recvfrom(4096)
-    if d and not restrict_answer:
-        data = d[0]
-        addr = (d[1][0], PORT)
-        if args.nat:
-            addr = (d[1][0], d[1][1])
-        reply = data
-        s.sendto(reply, addr)
-    elif d and restrict_answer:
-        if d[1][0] == conf['replyip']:
-            data = d[0]
-            addr = (d[1][0], PORT)
-            if args.nat:
-                addr = (d[1][0], d[1][1])
-            reply = data
-            s.sendto(reply, addr)
-        else:
+log('Socket bind complete, start reflecting ...')
+
+pckCount = 0
+
+while True:
+    try:
+        data, (ip_in, port_in) = s.recvfrom(4096)
+        
+        if restrict_answer and ip_in != conf['replyip']:
             pass
-    else:
+        else:
+            if args.nat:
+                port_out = port_in
+            else:
+                port_out = PORT
+
+            s.sendto(data, (ip_in, port_out))
+            
+            pckCount = pckCount + 1
+            if pckCount % 200 == 0:
+                log('{:>10} - from {}:{} -> to {}'.format(pckCount, ip_in, port_in, port_out))
+    except socket.timeout as e:
         if args.debug:
-            print('Waiting for data')
-        time.sleep(0.1)
+            log('Waiting for data')
+
 s.close()
